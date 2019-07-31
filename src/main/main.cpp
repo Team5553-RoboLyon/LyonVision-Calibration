@@ -62,7 +62,7 @@ int main() {
   std::cin >> shootsNumber;
 
   // Create http stream
-  MjpegStream stream("Calibration", SCREEN_WIDTH, SCREEN_HEIGHT, 30);
+  lyonlib::MjpegStream stream("Calibration", SCREEN_WIDTH, SCREEN_HEIGHT, 30);
 
   // Open capture and set properties
   cv::VideoCapture camera(0);
