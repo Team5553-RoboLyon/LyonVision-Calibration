@@ -1,0 +1,116 @@
+plugins {
+  id "edu.wpi.first.GradleRIO" version "2019.4.1"
+  id "google-test-test-suite"
+  id "cpp"
+}
+toolchainsPlugin.withRaspbian()
+
+// Init and update git submodules
+"git submodule update --init --recursive".execute();
+
+deploy {
+  targets {
+    target('coprocessor') {
+      directory = '/home/vision'
+      locations {
+        // Change this if you've changed the target hostname, username or password.
+        ssh {
+          address = 'lyonvision.local'
+          user = 'vision'
+          password = 'lyon'
+        }
+      }
+    }
+  }
+
+  artifacts {
+    nativeArtifact('vision') {
+      targetPlatform = wpi.platforms.raspbian
+      targets << 'coprocessor'
+      component = 'visionProgram'
+      buildType = 'release'
+
+      predeploy << { execute('sudo systemctl stop vision || true') }
+      // Make sure we can run our program!
+      postdeploy << { execute('chmod +x visionProgram'); execute('sudo systemctl restart vision || true') }
+    }
+
+    // Copy data/ folder in the program's working directory
+    fileTreeArtifact('visionData') {
+      targets << 'coprocessor'
+      files = fileTree(dir: 'src/data')
+      directory = '/home/vision/data'
+    }
+
+    // Store all the libraries in /home/vision/libraries, that way we don't poison /usr/local.
+    withType(jaci.gradle.deploy.artifact.BinaryLibraryArtifact) {
+      directory = '/home/vision/libraries'
+      predeploy << {
+        execute("sudo mkdir -p ${directory} && sudo chmod -R 777 ${directory}/..")
+        // Make sure the system can find our libraries!
+        execute("echo ${directory} | sudo tee /etc/ld.so.conf.d/vision.conf")
+      }
+
+      // Refresh the system's cache of known libraries, so ours can be found
+      postdeploy << { execute('sudo ldconfig') }
+    }
+  }
+}
+
+model {
+  components {
+    visionProgram(NativeExecutableSpec) {
+      targetPlatform wpi.platforms.desktop
+      targetPlatform wpi.platforms.raspbian
+
+      sources.cpp {
+        source {
+          srcDir 'src'
+          include '**/*.cpp'
+          exclude 'test'
+        }
+        exportedHeaders {
+          srcDir 'src'
+          include '**/*.h'
+          exclude 'test'
+        }
+      }
+
+      binaries.all {
+        if (targetPlatform.name == wpi.platforms.desktop) {
+          cppCompiler.define '__DESKTOP__'
+          if (targetPlatform.operatingSystem.isLinux()) {
+            linker.args << '-lusb-1.0'
+          }
+        }
+      }
+
+      useLibrary(it, 'opencv', "wpilib")
+    }
+  }
+  testSuites {
+    visionProgramTest(GoogleTestTestSuiteSpec) {
+      testing $.components.visionProgram
+
+      sources.cpp {
+        source {
+          srcDir 'src/test/cpp'
+          include '**/*.cpp'
+        }
+      }
+
+      useLibrary(it, 'opencv', 'wpilib', 'googletest')
+    }
+  }
+}
+
+// Copie du dossier Data/ dans le dossier ou se trouve le programme Windows
+task copyData(type: Copy) {
+  from 'src/data'
+  into "build/install/visionProgram/${wpi.platforms.desktop}/debug/lib/data"
+}
+
+// La copie doit être executée après l'installation du programme (sinon le dossier est effacé)
+copyData.mustRunAfter "installVisionProgram${wpi.platforms.desktop.capitalize()}DebugExecutable"
+
+task runVision(dependsOn: ["simulateVisionProgram${wpi.platforms.desktop.capitalize()}DebugExecutable", "copyData"])

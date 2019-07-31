@@ -1,0 +1,5 @@
+Files placed in this directory will be copied to the directory
+where the executable is.
+
+For exemple, this file can be reach by the program with the path
+"data/data.txt"

@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "InstallWindows",
+            "type": "shell",
+            "command": "./gradlew installVisionProgramWindowsx86-64DebugExecutable"
+        },
+        {
+            "label": "InstallLinux",
+            "type": "shell",
+            "command": "./gradlew installVisionProgramLinuxx86-64DebugExecutable"
+        },
+        {
+            "label": "InstallAndCopyWindows",
+            "type": "shell",
+            "command": "./gradlew CopyData",
+            "dependsOn": "InstallWindows"
+        },
+        {
+            "label": "InstallAndCopyLinux",
+            "type": "shell",
+            "command": "./gradlew CopyData",
+            "dependsOn": "InstallLinux"
+        }
+    ]
+}
