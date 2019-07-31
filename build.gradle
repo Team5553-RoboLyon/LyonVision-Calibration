@@ -6,7 +6,24 @@ plugins {
 toolchainsPlugin.withRaspbian()
 
 // Init and update git submodules
-"git submodule update --init --recursive".execute();
+task submodulesUpdate(type:Exec) {
+  // When no internet connexion is present, git fails
+  ignoreExitValue true
+  
+  if (org.gradle.internal.os.OperatingSystem.current().windows) {
+    commandLine 'cmd', '/c', 'git', 'submodule', 'update', '--init', '--recursive', '--remote'
+  }
+  else {
+    commandLine 'git', 'submodule', 'update', '--init', '--recursive', '--remote'
+  }
+}
+allprojects {
+  afterEvaluate {
+    for(def task in it.tasks)
+      if(task != rootProject.tasks.submodulesUpdate)
+        task.dependsOn rootProject.tasks.submodulesUpdate
+  }
+}
 
 deploy {
   targets {
@@ -82,6 +99,9 @@ model {
           if (targetPlatform.operatingSystem.isLinux()) {
             linker.args << '-lusb-1.0'
           }
+        }
+        if (targetPlatform.operatingSystem.isLinux()) {
+          linker.args << '-lstdc++fs'
         }
       }
 

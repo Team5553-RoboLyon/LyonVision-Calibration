@@ -1,45 +1,13 @@
-# LyonVision Template
+# Camera Calibration
 
-A simple vision tracking format to use, create and deploy other programs with.
+Programme de calibration de camera sur PC ou sur Raspberry par ssh.
 
-This template has to be used with the LyonVision raspberry pi image located at https://github.com/Team5553-RoboLyon/LyonVision-pi-gen
-
-**All Vision Tracking code is located in the folder [src/main/](src/main)**
+La calibration s'effectue avec une feuille imprimée d'un quadrillage noir et blanc.
 
 
 # Getting started
 
-## With your computer
-
-### 1. Install [WPILib](https://github.com/wpilibsuite/allwpilib/releases)
-
-### 2. Install [Java 11](https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html)
-
-### 3. Install a compiler
-  - [Visual Studio](https://visualstudio.microsoft.com/fr/downloads/) on Windows (in the Visual Studio Installer program, choose "Desktop Developement in C++")
-  - Gcc on Linux
-
-### 4. Install the raspbian cross-compiler
-  - Run the following command in the root directory of this project :
-  ```bash
-  .\gradlew installRaspbianToolchain
-  ```
-
-
-## With the Raspberry Pi
-
-### 1. Grab the custom Raspberry Pi image from the [LyonVision-pi-gen repository](https://github.com/Team5553-RoboLyon/LyonVision-pi-gen/releases)
-  - Latest release with name `LyonVision n°x - date`
-
-### 2. Flash the image onto a microSD card using etcher: https://etcher.io/
-  - You will need to grab the .img file from the zip. The .img file is what you give to etcher.
-  - After complete, insert the microSD card and startup the coprocessor. It may take a minute or two.
-
-### 3. Start your Raspberry Pi
-  - Hostname: `lyonvision.local`
-  - Username: `vision`
-  - Password: `lyon`
-
+Follow instructions of https://github.com/Team5553-RoboLyon/LyonVision-Template
 
 
 # Usage
@@ -53,6 +21,11 @@ This template has to be used with the LyonVision raspberry pi image located at h
 ```bash
 .\gradlew deploy
 ```
+* SSH into the Raspberry : user `vision` et password `lyon`
+
+* Run `./visionProgram` on the Raspberry
+
+* Open the mjpeg stream in any web browser : `lyonvision.local:1181/?action=stream`
 
 ## Build all
 ```bash
