@@ -114,7 +114,7 @@ model {
 
       sources.cpp {
         source {
-          srcDir 'src/test/cpp'
+          srcDir 'src/test'
           include '**/*.cpp'
         }
       }
