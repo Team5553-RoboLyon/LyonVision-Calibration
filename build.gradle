@@ -9,7 +9,7 @@ toolchainsPlugin.withRaspbian()
 task submodulesUpdate(type:Exec) {
   // When no internet connexion is present, git fails
   ignoreExitValue true
-  
+
   if (org.gradle.internal.os.OperatingSystem.current().windows) {
     commandLine 'cmd', '/c', 'git', 'submodule', 'update', '--init', '--recursive', '--remote'
   }
@@ -96,12 +96,6 @@ model {
       binaries.all {
         if (targetPlatform.name == wpi.platforms.desktop) {
           cppCompiler.define '__DESKTOP__'
-          if (targetPlatform.operatingSystem.isLinux()) {
-            linker.args << '-lusb-1.0'
-          }
-        }
-        if (targetPlatform.operatingSystem.isLinux()) {
-          linker.args << '-lstdc++fs'
         }
       }
 

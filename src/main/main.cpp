@@ -1,9 +1,11 @@
-﻿#include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
-#include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>
+
+#include <wpi/FileSystem.h>
+#include <opencv2/opencv.hpp>
+
 #include "lib/MjpegStream.h"
 
 #define SCREEN_WIDTH 320
@@ -179,8 +181,9 @@ int main() {
     fileOut.close();
 
     // On affiche l'endroit ou est situe le fichier de calibration
-    std::cout << "Calibration file located in : " << std::experimental::filesystem::absolute(filename)
-              << std::endl;
+    wpi::SmallString<64> absoluteFilename(filename);
+    wpi::sys::fs::make_absolute(absoluteFilename);
+    std::cout << "Calibration file located in : " << absoluteFilename << std::endl;
   }
 
   return 0;
